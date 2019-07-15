@@ -98,6 +98,7 @@ class Ui_Dialog_First_Window(object):
         self.full_FID_cb.setObjectName("full_FID_cb")
         self.full_FID_cb.setToolTip("If checked, use the full FID (ignore the gate start and stop boxes).")
         self.gridLayout.addWidget(self.full_FID_cb, 3, 6, 1, 1)
+        self.full_FID_cb.stateChanged.connect(self.are_we_there_yet)
 
         self.spur_spacing_label = QtWidgets.QLabel(Dialog)
         self.spur_spacing_label.setObjectName("spur_spacing_label")
@@ -157,14 +158,14 @@ class Ui_Dialog_First_Window(object):
     	fileName, _ = QtWidgets.QFileDialog.getOpenFileName()
     	if fileName:
     		self.file_import_input.setText(fileName)
-    		self.load_button.setEnabled(True)
+    		self.plot_button.setEnabled(False)
+    		self.are_we_there_yet()
 
     def browse_export(self):
     	fileName, _ = QtWidgets.QFileDialog.getSaveFileName()
     	if fileName:
     		self.file_export_input.setText(fileName)
-    		if self.plot_button.isEnabled():
-    			self.extract_spurs_button.setEnabled(True)
+    		self.are_we_there_yet()
 
     def raise_error(self):
     	self.error_dialog = QtWidgets.QMessageBox()
@@ -211,8 +212,7 @@ class Ui_Dialog_First_Window(object):
 
     	else:
     		self.plot_button.setEnabled(True)
-    		if self.file_export_input.text() != '':
-    			self.extract_spurs_button.setEnabled(True)
+    		self.are_we_there_yet()
 
     def plot_input(self):
     	global gate_start
@@ -240,6 +240,49 @@ class Ui_Dialog_First_Window(object):
 
     	self.plot = Data_Plot()
     	self.plot.show()
+    	self.are_we_there_yet()
+
+# This function applies appropriate logic to decide whether or not to enable the "do the thing" button.
+# It also tries to figure out what the next best step is to do and directs the focus there to help guide the user.
+    def are_we_there_yet(self):
+        if self.file_export_input.text() != '':
+            have_export_file = True
+        else:
+            have_export_file = False
+
+        if self.file_import_input.text() != '':
+            have_data_file = True
+        else:
+            have_data_file = False
+
+        if self.plot_button.isEnabled():
+            data_loaded = True
+        else:
+            data_loaded = False
+
+        if have_data_file == False:
+            self.browse_import_button.setFocus()
+            self.load_button.setEnabled(False)
+            self.plot_button.setEnabled(False)
+            self.extract_spurs_button.setEnabled(False)
+            return
+        else: # we have a data file
+            if data_loaded == False:
+                self.load_button.setEnabled(True)
+                self.load_button.setFocus()
+                self.plot_button.setEnabled(False)
+                self.extract_spurs_button.setEnabled(False)
+                return
+            else: # the data file has been loaded
+                if have_export_file == False:
+                    self.browse_export_button.setFocus()
+                    self.extract_spurs_button.setEnabled(False)
+                    return
+                else: # we have an export filename
+                    self.extract_spurs_button.setEnabled(True)
+                    self.extract_spurs_button.setFocus()
+                    return
+
 
     def extract(self):
     	# The old version actually did math and stuff. The new one allocates all of that to a worker thread.
@@ -308,6 +351,7 @@ class Ui_Dialog_First_Window(object):
     	worker.moveToThread(thread)
     	thread.started.connect(worker.run)
     	worker.progress.connect(self.progress_update)
+    	worker.done.connect(self.exit_update)
     	worker.finished.connect(worker.deleteLater)
     	thread.finished.connect(thread.deleteLater)
     	worker.finished.connect(thread.quit)
@@ -315,6 +359,10 @@ class Ui_Dialog_First_Window(object):
 
     def progress_update(self, value):
     	self.progress.setValue(value)
+
+    def exit_update(self,value):
+        if value:
+            self.exit_button.setFocus()
 
 
 class WidgetPlot(QtWidgets.QWidget): # Trying this one: https://stackoverflow.com/questions/48140576/matplotlib-toolbar-in-a-pyqt5-application
@@ -398,8 +446,6 @@ class Worker(QtCore.QObject): # looks like we need to use threading in order to 
 			percentage = int(math.floor(float(i+1)/float(len(spurs_list))*100.0))
 			self.calculate_progress(percentage)
 
-
-		#output_file_name = self.file_export_input.text()
 		output_file = open(self.output_file_name, 'w')
 
 		for i in range(len(data)):
@@ -407,7 +453,7 @@ class Worker(QtCore.QObject): # looks like we need to use threading in order to 
 			output_file.write('\n')
 
 		print "Complete!"
-
+		self.done.emit(True)
 		self.finished.emit(True)
 
 	def calculate_progress(self,percentage_new):
@@ -418,6 +464,7 @@ class Worker(QtCore.QObject): # looks like we need to use threading in order to 
 
 	progress = QtCore.pyqtSignal(int)
 	finished = QtCore.pyqtSignal(bool)
+	done = QtCore.pyqtSignal(bool)
 
 
 # Makes a new list, Cut, that is only the part of the FID within the defined gate
