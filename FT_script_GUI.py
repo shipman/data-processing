@@ -13,6 +13,7 @@ import numpy as np
 import math
 import matplotlib
 import sys
+import copy
 matplotlib.use("Qt5Agg")
 
 import matplotlib.pyplot as plt
@@ -263,48 +264,15 @@ class Ui_Dialog_First_Window(object):
         self.error_dialog.show()
 
     def load_blank_input(self):
-        try:
-            sample_rate = float(self.sample_rate_input.text())*1e9
-        except:
-            self.error_message = "Sample rate should be a float!"
-            self.raise_error()
-            return 0
-
-        global blank_FID
-        global blank_xdata
-
-        blank_FID = []
-        blank_xdata = []
-        row_counter = 0
-
-        try:
-            data_input_file = open(self.blank_import_input.text())
-        except:
-            self.error_message = "The blank file couldn't be opened. Try again with a different one." # We'll make this be a pop-up error window later
-            self.raise_error()
-            return 0
-
-        try:
-            for row in data_input_file:
-                temp=row.split()
-                blank_FID.append(float(temp[np.size(temp)-1]))
-                blank_xdata.append((row_counter/sample_rate)*1e6) # to put it in microseconds
-                row_counter += 1
-            if self.full_FID_cb.checkState():
-                self.gate_start_input.setText(str(xdata[0]))
-                self.gate_stop_input.setText(str(xdata[-1]))
-        except:
-            self.error_message = "Data from the blank file couldn't be properly processed; try again with a different file." # We'll make this be a pop-up error window later
-            self.raise_error()
-            return 0
-
-        else:
-            self.status_window.append("Blank file loaded successfully!")
-            self.plot_blank_button.setEnabled(True)
-            self.are_we_there_yet()
-
+        switch = "blank"
+        self.loader(switch)
 
     def load_input(self):
+        switch = "data"
+        self.loader(switch)
+
+# This will be the generic loader that can be used for either the data or the blank, with a switch that runs specific code as needed.
+    def loader(self,which_one):
         try:
             sample_rate = float(self.sample_rate_input.text())*1e9
         except:
@@ -312,67 +280,63 @@ class Ui_Dialog_First_Window(object):
             self.raise_error()
             return 0
 
-        global FID
-        global xdata
-
-        FID = []
-        xdata = []
         row_counter = 0
+        temp_FID = []
+        temp_xdata = []
+
+        if which_one == "data":
+            global FID
+            global xdata
+            file_to_open = self.file_import_input.text()
+
+        else: # which_one == "blank"
+            global blank_FID
+            global blank_xdata
+            file_to_open = self.blank_import_input.text()
 
         try:
-            data_input_file = open(self.file_import_input.text())
+            data_input_file = open(file_to_open)
         except:
-            self.error_message = "The data file couldn't be opened. Try again with a different one." # We'll make this be a pop-up error window later
+            self.error_message = "%s couldn't be opened. Try again with a different one."%(file_to_open)
             self.raise_error()
             return 0
 
         try:
             for row in data_input_file:
                 temp=row.split()
-                FID.append(float(temp[np.size(temp)-1]))
-                xdata.append((row_counter/sample_rate)*1e6) # to put it in microseconds
+                temp_FID.append(float(temp[np.size(temp)-1]))
+                temp_xdata.append((row_counter/sample_rate)*1e6) # to put it in microseconds
                 row_counter += 1
             if self.full_FID_cb.checkState():
-                self.gate_start_input.setText(str(xdata[0]))
-                self.gate_stop_input.setText(str(xdata[-1]))
+                self.gate_start_input.setText(str(temp_xdata[0]))
+                self.gate_stop_input.setText(str(temp_xdata[-1]))
         except:
-            self.error_message = "Data from the data file couldn't be properly processed; try again with a different file." # We'll make this be a pop-up error window later
+            self.error_message = "Data from a file (%s) couldn't be properly processed; try again with a different file."%(file_to_open)
             self.raise_error()
             return 0
-
         else:
-            self.status_window.append("Data file loaded successfully!")
-            self.plot_button.setEnabled(True)
-            self.are_we_there_yet()
+            if which_one == "data":
+                FID = copy.copy(temp_FID)
+                xdata = copy.copy(temp_xdata)
+                self.status_window.append("Data file loaded successfully!")
+                self.plot_button.setEnabled(True)
+                self.are_we_there_yet()
+            else:
+                blank_FID = copy.copy(temp_FID)
+                blank_xdata = copy.copy(temp_xdata)
+                self.status_window.append("Blank file loaded successfully!")
+                self.plot_blank_button.setEnabled(True)
+                self.are_we_there_yet()
 
     def plot_blank_input(self):
-        global gate_start
-        global gate_stop
-
-        if self.full_FID_cb.checkState():
-            self.gate_start_input.setText(str(xdata[0]))
-            self.gate_stop_input.setText(str(xdata[-1]))
-
-        try:
-            gate_start = float(self.gate_start_input.text())
-        except:
-            self.error_message = "Gate start should be a float!" # make it a window later
-            self.raise_error()
-            return 0
-
-        try:
-            gate_stop = float(self.gate_stop_input.text())
-        except:
-            self.error_message = "Gate stop should be a float!" # make it a window later
-            self.raise_error()
-            return 0
-
-        rcParams.update({'figure.autolayout': True}) # Magic from here: https://stackoverflow.com/questions/6774086/why-is-my-xlabel-cut-off-in-my-matplotlib-plot
-
-        self.plot = Blank_Plot()
-        self.plot.show()
+        switch = "blank"
+        self.plotter(switch)
 
     def plot_input(self):
+        switch = "data"
+        self.plotter(switch)
+
+    def plotter(self,switch):
         global gate_start
         global gate_stop
 
@@ -396,8 +360,9 @@ class Ui_Dialog_First_Window(object):
 
         rcParams.update({'figure.autolayout': True}) # Magic from here: https://stackoverflow.com/questions/6774086/why-is-my-xlabel-cut-off-in-my-matplotlib-plot
 
-        self.plot = Data_Plot()
+        self.plot = Actual_Plot(which_one=switch)
         self.plot.show()
+
 
     def FT(self):
         # Does all the math and stuff here instead of sending to a worker thread. Hopefully that's not bad!
@@ -597,21 +562,11 @@ class Worker(QtCore.QObject): # looks like we need to use threading in order to 
     finished = QtCore.pyqtSignal(bool)
 
 
-
 class WidgetPlot(QtWidgets.QWidget): # Trying this one: https://stackoverflow.com/questions/48140576/matplotlib-toolbar-in-a-pyqt5-application
     def __init__(self, *args, **kwargs):
         QtWidgets.QWidget.__init__(self, *args, **kwargs)
         self.setLayout(QtWidgets.QVBoxLayout())
         self.canvas = PlotCanvas(self, width=10, height=8)
-        self.toolbar = NavigationToolbar(self.canvas, self)
-        self.layout().addWidget(self.toolbar)
-        self.layout().addWidget(self.canvas)
-
-class WidgetBlankPlot(QtWidgets.QWidget): # Trying this one: https://stackoverflow.com/questions/48140576/matplotlib-toolbar-in-a-pyqt5-application
-    def __init__(self, *args, **kwargs):
-        QtWidgets.QWidget.__init__(self, *args, **kwargs)
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.canvas = PlotBlankCanvas(self, width=10, height=8)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.layout().addWidget(self.toolbar)
         self.layout().addWidget(self.canvas)
@@ -627,38 +582,32 @@ class PlotCanvas(FigureCanvas):
 
     def plot(self):
         ax = self.figure.add_subplot(111)
-        ax.plot(xdata,FID,'-')
+        if plot_switch == "data":
+            ax.plot(xdata,FID,'-')
+        else:
+            ax.plot(blank_xdata,blank_FID,'-')
         ax.axvline(x=gate_start,color='r',linestyle='--')
         ax.axvline(x=gate_stop,color='r',linestyle='--')
-        ax.set_title('FID + Gates')
+
+        if plot_switch == "data":
+            ax.set_title('FID + Gates')
+        else:
+            ax.set_title('FID (Blank) + Gates')
+
         ax.set_xlabel('Time (microseconds)')
         ax.set_ylabel('FID Amplitude (arb. units)')
         self.draw()
 
-class PlotBlankCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=10, height=8, dpi=100):
-        fig = Figure(figsize=(width,height), dpi=dpi)
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-        self.plot()
-
-    def plot(self):
-        ax = self.figure.add_subplot(111)
-        ax.plot(blank_xdata,blank_FID,'-')
-        ax.axvline(x=gate_start,color='r',linestyle='--')
-        ax.axvline(x=gate_stop,color='r',linestyle='--')
-        ax.set_title('FID (Blank) + Gates')
-        ax.set_xlabel('Time (microseconds)')
-        ax.set_ylabel('FID Amplitude (arb. units)')
-        self.draw()
-
-class Data_Plot(QtWidgets.QMainWindow):
-    def __init__(self):
+class Actual_Plot(QtWidgets.QMainWindow):
+    def __init__(self, **kwargs):
         QtWidgets.QMainWindow.__init__(self)
+        self.__dict__.update(kwargs)
 
-        self.title = 'Plot of FID with Gate Boundaries'
+        if self.which_one == "data":
+            self.title = 'Plot of FID with Gate Boundaries'
+        else:
+            self.title = 'Plot of FID (Blank) with Gate Boundaries'
+
         self.left = 300
         self.top = 300
         self.width = 500
@@ -672,32 +621,12 @@ class Data_Plot(QtWidgets.QMainWindow):
         vlay = QtWidgets.QVBoxLayout(widget)
         hlay = QtWidgets.QHBoxLayout()
         vlay.addLayout(hlay)
+
+        global plot_switch
+        plot_switch = self.which_one
 
         m = WidgetPlot(self)
         vlay.addWidget(m)
-
-class Blank_Plot(QtWidgets.QMainWindow):
-    def __init__(self):
-        QtWidgets.QMainWindow.__init__(self)
-
-        self.title = 'Plot of FID (Blank) with Gate Boundaries'
-        self.left = 300
-        self.top = 300
-        self.width = 500
-        self.height = 400
-
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(widget)
-        vlay = QtWidgets.QVBoxLayout(widget)
-        hlay = QtWidgets.QHBoxLayout()
-        vlay.addLayout(hlay)
-
-        m = WidgetBlankPlot(self)
-        vlay.addWidget(m)
-
 
 def Correct_FID_Length_Window(local_FID,Window): #this operation does zero filling and scaling of FID by window function; trying for good balance of resolution and intensity
     Npts = local_FID.size
