@@ -45,109 +45,116 @@ class Ui_Dialog_First_Window(object):
         self.band_select.setToolTip("This is the band in which the data was collected.")
         self.band_select.addItems(["Low (8.7-13.5 GHz)", "Medium (13.5-18.3 GHz)", "High (18.0-26.5 GHz)"])
         self.gridLayout.addWidget(self.band_select, 0, 3, 1, 2)
-        self.use_blank_label = QtWidgets.QLabel(Dialog)
-        self.use_blank_label.setObjectName("use_blank_label")
-        self.gridLayout.addWidget(self.use_blank_label, 0, 5, 1, 1)
+        #self.use_blank_label = QtWidgets.QLabel(Dialog)
+        #self.use_blank_label.setObjectName("use_blank_label")
+        #self.gridLayout.addWidget(self.use_blank_label, 0, 5, 1, 1)
         self.use_blank_cb = QtWidgets.QCheckBox(Dialog)
         self.use_blank_cb.setObjectName("use_blank_cb")
         self.use_blank_cb.setToolTip("If checked, use the blank (subtract it from the data file before FT).")
+        self.use_blank_cb.setText("Subtract Blank")
         self.use_blank_cb.stateChanged.connect(self.are_we_there_yet)
-        self.gridLayout.addWidget(self.use_blank_cb, 0, 6, 1, 1)
-
-        self.file_import_label = QtWidgets.QLabel(Dialog)
-        self.file_import_label.setObjectName("file_import_label")
-        self.gridLayout.addWidget(self.file_import_label, 1, 0, 1, 1)
-        self.file_import_input = QtWidgets.QLineEdit(Dialog)
-        self.file_import_input.setObjectName("file_import_input")
-        self.file_import_input.setToolTip("Name of the data file to be loaded and processed.")
-        self.gridLayout.addWidget(self.file_import_input, 1, 1, 1, 3)
-        self.browse_import_button = QtWidgets.QPushButton(Dialog)
-        self.browse_import_button.setObjectName("browse_import_button")
-        self.browse_import_button.clicked.connect(self.browse)
-        self.gridLayout.addWidget(self.browse_import_button, 1, 4, 1, 1)
-        self.load_button = QtWidgets.QPushButton(Dialog)
-        self.load_button.setObjectName("load_button")
-        self.load_button.clicked.connect(self.load_input)
-        self.gridLayout.addWidget(self.load_button, 1, 5, 1, 1)
-        self.load_button.setEnabled(False)
-        self.plot_button = QtWidgets.QPushButton(Dialog)
-        self.plot_button.setObjectName("plot_button")
-        self.plot_button.clicked.connect(self.plot_input)
-        self.gridLayout.addWidget(self.plot_button, 1, 6, 1, 1)
-        self.plot_button.setEnabled(False)
-
-        self.blank_import_label = QtWidgets.QLabel(Dialog)
-        self.blank_import_label.setObjectName("blank_import_label")
-        self.gridLayout.addWidget(self.blank_import_label, 2, 0, 1, 1)
-        self.blank_import_input = QtWidgets.QLineEdit(Dialog)
-        self.blank_import_input.setObjectName("blank_import_input")
-        self.blank_import_input.setToolTip("Name of the data file (blank) to be loaded and processed.")
-        self.gridLayout.addWidget(self.blank_import_input, 2, 1, 1, 3)
-        self.browse_import_blank_button = QtWidgets.QPushButton(Dialog)
-        self.browse_import_blank_button.setObjectName("browse_import_blank_button")
-        self.browse_import_blank_button.clicked.connect(self.browse_blank)
-        self.gridLayout.addWidget(self.browse_import_blank_button, 2, 4, 1, 1)
-        self.browse_import_blank_button.setEnabled(False)
-        self.load_blank_button = QtWidgets.QPushButton(Dialog)
-        self.load_blank_button.setObjectName("load_blank_button")
-        self.load_blank_button.clicked.connect(self.load_blank_input) # May instead want to pass a value to a more generic function...
-        self.gridLayout.addWidget(self.load_blank_button, 2, 5, 1, 1)
-        self.load_blank_button.setEnabled(False)
-        self.plot_blank_button = QtWidgets.QPushButton(Dialog)
-        self.plot_blank_button.setObjectName("plot_blank_button")
-        self.plot_blank_button.clicked.connect(self.plot_blank_input) # May instead want to pass a value to a more generic function...
-        self.gridLayout.addWidget(self.plot_blank_button, 2, 6, 1, 1)
-        self.plot_blank_button.setEnabled(False)
-
-        self.file_export_label = QtWidgets.QLabel(Dialog)
-        self.file_export_label.setObjectName("file_export_label")
-        self.gridLayout.addWidget(self.file_export_label, 3, 0, 1, 1)
-        self.file_export_input = QtWidgets.QLineEdit(Dialog)
-        self.file_export_input.setObjectName("file_export_input")
-        self.file_export_input.setToolTip("Name of the file that data will be saved to.")
-        self.gridLayout.addWidget(self.file_export_input, 3, 1, 1, 3)
-        self.browse_export_button = QtWidgets.QPushButton(Dialog)
-        self.browse_export_button.setObjectName("browse_export_button")
-        self.browse_export_button.clicked.connect(self.browse_export)
-        self.gridLayout.addWidget(self.browse_export_button, 3, 4, 1, 1)
+        self.gridLayout.addWidget(self.use_blank_cb, 0, 5, 1, 1)
 
         self.gate_start_label = QtWidgets.QLabel(Dialog)
         self.gate_start_label.setObjectName("gate_start_label")
-        self.gridLayout.addWidget(self.gate_start_label, 4, 0, 1, 1)
+        self.gridLayout.addWidget(self.gate_start_label, 1, 0, 1, 1)
         self.gate_start_input = QtWidgets.QLineEdit(Dialog)
         self.gate_start_input.setObjectName("gate_start_input")
         self.gate_start_input.setToolTip("This is the starting point of the data to process, in microseconds.\nIf this value is negative, it will be reset to 0.0 when spur extraction begins.")
         self.gate_start_input.setText("0.0") # Default value, will need to add checks to make sure this is in-bounds
-        self.gridLayout.addWidget(self.gate_start_input, 4, 1, 1, 1)
+        self.gridLayout.addWidget(self.gate_start_input, 1, 1, 1, 1)
         self.gate_stop_label = QtWidgets.QLabel(Dialog)
         self.gate_stop_label.setObjectName("gate_stop_label")
-        self.gridLayout.addWidget(self.gate_stop_label, 4, 3, 1, 1)
+        self.gridLayout.addWidget(self.gate_stop_label, 1, 3, 1, 1)
         self.gate_stop_input = QtWidgets.QLineEdit(Dialog)
         self.gate_stop_input.setObjectName("gate_stop_input")
         self.gate_stop_input.setToolTip("This is the end point of the data to process, in microseconds.\nIf this value is greater than the FID duration, it will be set to the time corresponding to the last point in the file.")
         self.gate_stop_input.setText("8.0") # Default value, will need to add checks to make sure this is in-bounds
-        self.gridLayout.addWidget(self.gate_stop_input, 4, 4, 1, 1)
-        self.full_FID_label = QtWidgets.QLabel(Dialog)
-        self.full_FID_label.setObjectName("full_FID_label")
-        self.gridLayout.addWidget(self.full_FID_label, 4, 5, 1, 1)
+        self.gridLayout.addWidget(self.gate_stop_input, 1, 4, 1, 1)
+        #self.full_FID_label = QtWidgets.QLabel(Dialog)
+        #self.full_FID_label.setObjectName("full_FID_label")
+        #self.gridLayout.addWidget(self.full_FID_label, 1, 5, 1, 1)
         self.full_FID_cb = QtWidgets.QCheckBox(Dialog)
         self.full_FID_cb.setObjectName("full_FID_cb")
         self.full_FID_cb.setToolTip("If checked, use the full FID (ignore the gate start and stop boxes).")
-        self.gridLayout.addWidget(self.full_FID_cb, 4, 6, 1, 1)
+        self.full_FID_cb.setText("Use Full FID")
+        self.gridLayout.addWidget(self.full_FID_cb, 1, 5, 1, 1)
         self.full_FID_cb.stateChanged.connect(self.are_we_there_yet)
+
+        self.gridLayout.addWidget(QHLine(), 2, 0, 1, 7)
+
+        self.file_import_label = QtWidgets.QLabel(Dialog)
+        self.file_import_label.setObjectName("file_import_label")
+        self.gridLayout.addWidget(self.file_import_label, 3, 0, 1, 1)
+        self.file_import_input = QtWidgets.QLineEdit(Dialog)
+        self.file_import_input.setObjectName("file_import_input")
+        self.file_import_input.setToolTip("Name of the data file to be loaded and processed.")
+        self.gridLayout.addWidget(self.file_import_input, 3, 1, 1, 3)
+        self.browse_import_button = QtWidgets.QPushButton(Dialog)
+        self.browse_import_button.setObjectName("browse_import_button")
+        self.browse_import_button.clicked.connect(self.browse)
+        self.gridLayout.addWidget(self.browse_import_button, 3, 4, 1, 1)
+        self.load_button = QtWidgets.QPushButton(Dialog)
+        self.load_button.setObjectName("load_button")
+        self.load_button.clicked.connect(self.load_input)
+        self.gridLayout.addWidget(self.load_button, 3, 5, 1, 1)
+        self.load_button.setEnabled(False)
+        self.plot_button = QtWidgets.QPushButton(Dialog)
+        self.plot_button.setObjectName("plot_button")
+        self.plot_button.clicked.connect(self.plot_input)
+        self.gridLayout.addWidget(self.plot_button, 3, 6, 1, 1)
+        self.plot_button.setEnabled(False)
+
+        self.blank_import_label = QtWidgets.QLabel(Dialog)
+        self.blank_import_label.setObjectName("blank_import_label")
+        self.gridLayout.addWidget(self.blank_import_label, 4, 0, 1, 1)
+        self.blank_import_input = QtWidgets.QLineEdit(Dialog)
+        self.blank_import_input.setObjectName("blank_import_input")
+        self.blank_import_input.setToolTip("Name of the data file (blank) to be loaded and processed.")
+        self.gridLayout.addWidget(self.blank_import_input, 4, 1, 1, 3)
+        self.blank_import_input.setEnabled(False)
+        self.browse_import_blank_button = QtWidgets.QPushButton(Dialog)
+        self.browse_import_blank_button.setObjectName("browse_import_blank_button")
+        self.browse_import_blank_button.clicked.connect(self.browse_blank)
+        self.gridLayout.addWidget(self.browse_import_blank_button, 4, 4, 1, 1)
+        self.browse_import_blank_button.setEnabled(False)
+        self.load_blank_button = QtWidgets.QPushButton(Dialog)
+        self.load_blank_button.setObjectName("load_blank_button")
+        self.load_blank_button.clicked.connect(self.load_blank_input) # May instead want to pass a value to a more generic function...
+        self.gridLayout.addWidget(self.load_blank_button, 4, 5, 1, 1)
+        self.load_blank_button.setEnabled(False)
+        self.plot_blank_button = QtWidgets.QPushButton(Dialog)
+        self.plot_blank_button.setObjectName("plot_blank_button")
+        self.plot_blank_button.clicked.connect(self.plot_blank_input) # May instead want to pass a value to a more generic function...
+        self.gridLayout.addWidget(self.plot_blank_button, 4, 6, 1, 1)
+        self.plot_blank_button.setEnabled(False)
+
+        self.file_export_label = QtWidgets.QLabel(Dialog)
+        self.file_export_label.setObjectName("file_export_label")
+        self.gridLayout.addWidget(self.file_export_label, 5, 0, 1, 1)
+        self.file_export_input = QtWidgets.QLineEdit(Dialog)
+        self.file_export_input.setObjectName("file_export_input")
+        self.file_export_input.setToolTip("Name of the file that data will be saved to.")
+        self.gridLayout.addWidget(self.file_export_input, 5, 1, 1, 3)
+        self.browse_export_button = QtWidgets.QPushButton(Dialog)
+        self.browse_export_button.setObjectName("browse_export_button")
+        self.browse_export_button.clicked.connect(self.browse_export)
+        self.gridLayout.addWidget(self.browse_export_button, 5, 4, 1, 1)
+
+        self.gridLayout.addWidget(QHLine(), 6, 0, 1, 7)
 
         self.FT_data_button = QtWidgets.QPushButton(Dialog)
         self.FT_data_button.setObjectName("FT_data_button")
         self.FT_data_button.clicked.connect(self.FT)
-        self.gridLayout.addWidget(self.FT_data_button, 5, 0, 1, 4)
+        self.gridLayout.addWidget(self.FT_data_button, 7, 0, 1, 4)
         self.FT_data_button.setEnabled(False)
         self.exit_button = QtWidgets.QPushButton(Dialog)
         self.exit_button.setObjectName("exit_button")
         self.exit_button.clicked.connect(app.quit) # Probably should interrupt if haven't saved yet
-        self.gridLayout.addWidget(self.exit_button, 5, 4, 1, 2)
+        self.gridLayout.addWidget(self.exit_button, 7, 4, 1, 2)
         self.indicator = QtWidgets.QPushButton(Dialog) # Hacking a push button to be a status indicator
         self.indicator.setObjectName("indicator")
-        self.gridLayout.addWidget(self.indicator, 5, 6, 1, 1)
+        self.gridLayout.addWidget(self.indicator, 7, 6, 1, 1)
         self.indicator.setEnabled(False)
         self.indicator.setStyleSheet("background-color:rgb(255,255,255); color:rgb(0,0,0); border: none")
         self.indicator.setText("Not Ready")
@@ -155,7 +162,7 @@ class Ui_Dialog_First_Window(object):
         
         self.status_window = QtWidgets.QTextEdit(Dialog)
         self.status_window.setObjectName("status_window")
-        self.gridLayout.addWidget(self.status_window, 6, 0, 5, 7) # make it big!!!!
+        self.gridLayout.addWidget(self.status_window, 8, 0, 5, 7) # make it big!!!!
         self.status_window.setReadOnly(True)
 
         self.retranslateUi(Dialog)
@@ -166,7 +173,7 @@ class Ui_Dialog_First_Window(object):
         Dialog.setWindowTitle(_translate("Dialog", "Fourier Transform"))
         self.sample_rate_label.setText(_translate("Dialog", "Sample Rate (GS/s)"))
         self.band_select_label.setText(_translate("Dialog", "Band"))
-        self.use_blank_label.setText(_translate("Dialog", "Use Blank?"))
+        #self.use_blank_label.setText(_translate("Dialog", "Use Blank?"))
         self.file_import_label.setText(_translate("Dialog", "Data File Name"))
         self.browse_import_button.setText(_translate("Dialog", "Browse"))
         self.load_button.setText(_translate("Dialog", "Load Data"))
@@ -177,7 +184,7 @@ class Ui_Dialog_First_Window(object):
         self.plot_blank_button.setText(_translate("Dialog", "Plot Blank"))
         self.gate_start_label.setText(_translate("Dialog", "Gate Start (us)"))
         self.gate_stop_label.setText(_translate("Dialog", "Gate Stop (us)"))
-        self.full_FID_label.setText(_translate("Dialog", "Use Full FID?"))
+        #self.full_FID_label.setText(_translate("Dialog", "Use Full FID?"))
         self.file_export_label.setText(_translate("Dialog", "Output File Name"))
         self.browse_export_button.setText(_translate("Dialog", "Browse"))
         self.FT_data_button.setText(_translate("Dialog", "Fourier Transform!"))
@@ -210,7 +217,15 @@ class Ui_Dialog_First_Window(object):
 # This function applies appropriate logic to decide whether or not to enable the "do the thing" button.
 # It also tries to figure out what the next best step is to do and directs the focus there to help guide the user.
     def are_we_there_yet(self):
-        use_blank = self.use_blank_cb.checkState()
+        use_blank = self.use_blank_cb.isChecked()
+        use_full_FID = self.full_FID_cb.isChecked()
+
+        if use_full_FID:
+            self.gate_start_input.setEnabled(False)
+            self.gate_stop_input.setEnabled(False)
+        else:
+            self.gate_start_input.setEnabled(True)
+            self.gate_stop_input.setEnabled(True)
 
         if self.file_export_input.text() != '':
             have_export_file = True
@@ -220,6 +235,7 @@ class Ui_Dialog_First_Window(object):
 
         if use_blank:
             self.browse_import_blank_button.setEnabled(True)
+            self.blank_import_input.setEnabled(True)
             if self.plot_blank_button.isEnabled() and self.plot_button.isEnabled() and have_export_file:
                 self.FT_data_button.setEnabled(True)
                 self.indicator.setText("Ready")
@@ -235,6 +251,7 @@ class Ui_Dialog_First_Window(object):
             self.browse_import_blank_button.setEnabled(False)
             self.load_blank_button.setEnabled(False)
             self.plot_blank_button.setEnabled(False)
+            self.blank_import_input.setEnabled(False)
             if self.plot_button.isEnabled() and have_export_file:
                 self.FT_data_button.setEnabled(True)
                 self.indicator.setText("Ready")
@@ -307,9 +324,11 @@ class Ui_Dialog_First_Window(object):
                 temp_FID.append(float(temp[np.size(temp)-1]))
                 temp_xdata.append((row_counter/sample_rate)*1e6) # to put it in microseconds
                 row_counter += 1
-            if self.full_FID_cb.checkState():
+            if self.full_FID_cb.isChecked():
                 self.gate_start_input.setText(str(temp_xdata[0]))
                 self.gate_stop_input.setText(str(temp_xdata[-1]))
+                self.gate_start_input.setEnabled(False)
+                self.gate_stop_input.setEnabled(False)
         except:
             self.error_message = "Data from a file (%s) couldn't be properly processed; try again with a different file."%(file_to_open)
             self.raise_error()
@@ -340,9 +359,11 @@ class Ui_Dialog_First_Window(object):
         global gate_start
         global gate_stop
 
-        if self.full_FID_cb.checkState():
+        if self.full_FID_cb.isChecked():
             self.gate_start_input.setText(str(xdata[0]))
             self.gate_stop_input.setText(str(xdata[-1]))
+            self.gate_start_input.setEnabled(False)
+            self.gate_stop_input.setEnabled(False)
 
         try:
             gate_start = float(self.gate_start_input.text())
@@ -368,11 +389,13 @@ class Ui_Dialog_First_Window(object):
         # Does all the math and stuff here instead of sending to a worker thread. Hopefully that's not bad!
         # OK, looks like we should send the hard things to a worker thread. Sigh.
 
-        if self.full_FID_cb.checkState():
+        if self.full_FID_cb.isChecked():
             self.gate_start_input.setText(str(xdata[0]))
             self.gate_stop_input.setText(str(xdata[-1]))
+            self.gate_start_input.setEnabled(False)
+            self.gate_stop_input.setEnabled(False)
 
-        use_blank = self.use_blank_cb.checkState()
+        use_blank = self.use_blank_cb.isChecked()
 
         try:
             sample_rate = float(self.sample_rate_input.text())*1e9
@@ -561,6 +584,11 @@ class Worker(QtCore.QObject): # looks like we need to use threading in order to 
     indicator = QtCore.pyqtSignal(int)
     finished = QtCore.pyqtSignal(bool)
 
+class QHLine(QtWidgets.QFrame): # Using this: https://stackoverflow.com/questions/5671354/how-to-programmatically-make-a-horizontal-line-in-qt
+    def __init__(self):
+        super(QHLine, self).__init__()
+        self.setFrameShape(QtWidgets.QFrame.HLine)
+        self.setFrameShadow(QtWidgets.QFrame.Sunken)
 
 class WidgetPlot(QtWidgets.QWidget): # Trying this one: https://stackoverflow.com/questions/48140576/matplotlib-toolbar-in-a-pyqt5-application
     def __init__(self, *args, **kwargs):
