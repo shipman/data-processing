@@ -24,6 +24,15 @@ from matplotlib import rcParams
 
 class Ui_Dialog_First_Window(object):
     def setupUi(self, Dialog):
+
+        global FID
+        global xdata
+        global blank_FID
+        global blank_xdata
+        global gate_start
+        global gate_stop
+        global plot_switch
+
         Dialog.setObjectName("Dialog")
         Dialog.resize(275, 145)
 
@@ -45,9 +54,6 @@ class Ui_Dialog_First_Window(object):
         self.band_select.setToolTip("This is the band in which the data was collected.")
         self.band_select.addItems(["Low (8.7-13.5 GHz)", "Medium (13.5-18.3 GHz)", "High (18.0-26.5 GHz)"])
         self.gridLayout.addWidget(self.band_select, 0, 3, 1, 2)
-        #self.use_blank_label = QtWidgets.QLabel(Dialog)
-        #self.use_blank_label.setObjectName("use_blank_label")
-        #self.gridLayout.addWidget(self.use_blank_label, 0, 5, 1, 1)
         self.use_blank_cb = QtWidgets.QCheckBox(Dialog)
         self.use_blank_cb.setObjectName("use_blank_cb")
         self.use_blank_cb.setToolTip("If checked, use the blank (subtract it from the data file before FT).")
@@ -71,9 +77,6 @@ class Ui_Dialog_First_Window(object):
         self.gate_stop_input.setToolTip("This is the end point of the data to process, in microseconds.\nIf this value is greater than the FID duration, it will be set to the time corresponding to the last point in the file.")
         self.gate_stop_input.setText("8.0") # Default value, will need to add checks to make sure this is in-bounds
         self.gridLayout.addWidget(self.gate_stop_input, 1, 4, 1, 1)
-        #self.full_FID_label = QtWidgets.QLabel(Dialog)
-        #self.full_FID_label.setObjectName("full_FID_label")
-        #self.gridLayout.addWidget(self.full_FID_label, 1, 5, 1, 1)
         self.full_FID_cb = QtWidgets.QCheckBox(Dialog)
         self.full_FID_cb.setObjectName("full_FID_cb")
         self.full_FID_cb.setToolTip("If checked, use the full FID (ignore the gate start and stop boxes).")
@@ -173,7 +176,6 @@ class Ui_Dialog_First_Window(object):
         Dialog.setWindowTitle(_translate("Dialog", "Fourier Transform"))
         self.sample_rate_label.setText(_translate("Dialog", "Sample Rate (GS/s)"))
         self.band_select_label.setText(_translate("Dialog", "Band"))
-        #self.use_blank_label.setText(_translate("Dialog", "Use Blank?"))
         self.file_import_label.setText(_translate("Dialog", "Data File Name"))
         self.browse_import_button.setText(_translate("Dialog", "Browse"))
         self.load_button.setText(_translate("Dialog", "Load Data"))
@@ -184,7 +186,6 @@ class Ui_Dialog_First_Window(object):
         self.plot_blank_button.setText(_translate("Dialog", "Plot Blank"))
         self.gate_start_label.setText(_translate("Dialog", "Gate Start (us)"))
         self.gate_stop_label.setText(_translate("Dialog", "Gate Stop (us)"))
-        #self.full_FID_label.setText(_translate("Dialog", "Use Full FID?"))
         self.file_export_label.setText(_translate("Dialog", "Output File Name"))
         self.browse_export_button.setText(_translate("Dialog", "Browse"))
         self.FT_data_button.setText(_translate("Dialog", "Fourier Transform!"))
@@ -220,60 +221,89 @@ class Ui_Dialog_First_Window(object):
         use_blank = self.use_blank_cb.isChecked()
         use_full_FID = self.full_FID_cb.isChecked()
 
-        if use_full_FID:
+        if use_full_FID: # Basic button enabling set up first, based on checkbox responses.
             self.gate_start_input.setEnabled(False)
             self.gate_stop_input.setEnabled(False)
         else:
             self.gate_start_input.setEnabled(True)
             self.gate_stop_input.setEnabled(True)
 
-        if self.file_export_input.text() != '':
-            have_export_file = True
-        else:
-            have_export_file = False
-            self.browse_export_button.setFocus()
-
         if use_blank:
             self.browse_import_blank_button.setEnabled(True)
             self.blank_import_input.setEnabled(True)
-            if self.plot_blank_button.isEnabled() and self.plot_button.isEnabled() and have_export_file:
-                self.FT_data_button.setEnabled(True)
-                self.indicator.setText("Ready")
-                self.FT_data_button.setFocus()
-            else:
-                self.FT_data_button.setEnabled(False)
-                self.indicator.setText("Not Ready")
-                if self.plot_blank_button.isEnabled() == False:
-                    self.load_blank_button.setFocus()
-                if self.plot_button.isEnabled() == False:
-                    self.load_button.setFocus()
         else:
             self.browse_import_blank_button.setEnabled(False)
             self.load_blank_button.setEnabled(False)
             self.plot_blank_button.setEnabled(False)
             self.blank_import_input.setEnabled(False)
-            if self.plot_button.isEnabled() and have_export_file:
+
+        if self.file_import_input.text() == '':
+            self.load_button.setEnabled(False)
+            self.plot_button.setEnabled(False)
+
+        if self.blank_import_input.text() == '':
+            self.load_blank_button.setEnabled(False)
+            self.plot_blank_button.setEnabled(False)
+
+        if self.file_import_input.text() == '': # Now the prioritization logic. Getting data file loaded is most important.
+            self.browse_import_button.setFocus()
+            self.FT_data_button.setEnabled(False)
+            self.indicator.setText("Not Ready")
+            return False
+        elif self.plot_button.isEnabled() == False:
+            self.load_button.setEnabled(True)
+            self.load_button.setFocus()
+            self.FT_data_button.setEnabled(False)
+            self.indicator.setText("Not Ready")
+            return False
+
+        if self.file_export_input.text() != '':
+            have_export_file = True
+        else:
+            have_export_file = False
+
+        if use_blank: # Then the blank if there is one.
+            if self.blank_import_input.text() == '':
+                self.browse_import_blank_button.setFocus()
+                self.FT_data_button.setEnabled(False)
+                self.indicator.setText("Not Ready")
+                return False
+
+            if self.plot_blank_button.isEnabled() and self.plot_button.isEnabled() and have_export_file:
                 self.FT_data_button.setEnabled(True)
                 self.indicator.setText("Ready")
                 self.FT_data_button.setFocus()
+                return True
             else:
                 self.FT_data_button.setEnabled(False)
                 self.indicator.setText("Not Ready")
                 if self.plot_button.isEnabled() == False:
                     self.load_button.setFocus()
-
-        if use_blank:
-            if self.blank_import_input.text() != '':
-                self.load_blank_button.setEnabled(True)
-                self.load_blank_button.setFocus()
+                    return False
+                if self.plot_blank_button.isEnabled() == False:
+                    self.load_blank_button.setFocus()
+                    return False
+                if have_export_file == False:
+                    self.browse_export_button.setFocus()
+                    return False
+        else:
+            if self.plot_button.isEnabled() and have_export_file:
+                self.FT_data_button.setEnabled(True)
+                self.indicator.setText("Ready")
+                self.FT_data_button.setFocus()
+                return True
             else:
-                self.browse_import_blank_button.setFocus()
-
-        if self.indicator.text() == "Ready":
-            self.FT_data_button.setFocus()
-
+                self.FT_data_button.setEnabled(False)
+                self.indicator.setText("Not Ready")
+                if self.plot_button.isEnabled() == False:
+                    self.load_button.setFocus()
+                    return False
+                if have_export_file == False:
+                    self.browse_export_button.setFocus()
+                    return False
 
     def raise_error(self):
+        self.are_we_there_yet()
         self.error_dialog = QtWidgets.QMessageBox()
         self.error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
         self.error_dialog.setWindowTitle("Something's Wrong!")
@@ -290,11 +320,17 @@ class Ui_Dialog_First_Window(object):
 
 # This will be the generic loader that can be used for either the data or the blank, with a switch that runs specific code as needed.
     def loader(self,which_one):
+        global FID
+        global xdata
+        global blank_FID
+        global blank_xdata
+
         try:
             sample_rate = float(self.sample_rate_input.text())*1e9
         except:
             self.error_message = "Sample rate should be a float!"
             self.raise_error()
+            self.sample_rate_input.setFocus()
             return 0
 
         row_counter = 0
@@ -302,19 +338,15 @@ class Ui_Dialog_First_Window(object):
         temp_xdata = []
 
         if which_one == "data":
-            global FID
-            global xdata
             file_to_open = self.file_import_input.text()
 
         else: # which_one == "blank"
-            global blank_FID
-            global blank_xdata
             file_to_open = self.blank_import_input.text()
 
         try:
             data_input_file = open(file_to_open)
         except:
-            self.error_message = "%s couldn't be opened. Try again with a different one."%(file_to_open)
+            self.error_message = "%s couldn't be opened. Try again with a different file."%(file_to_open)
             self.raise_error()
             return 0
 
@@ -370,6 +402,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Gate start should be a float!" # make it a window later
             self.raise_error()
+            self.gate_start_input.setFocus()
             return 0
 
         try:
@@ -377,6 +410,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Gate stop should be a float!" # make it a window later
             self.raise_error()
+            self.gate_stop_input.setFocus()
             return 0
 
         rcParams.update({'figure.autolayout': True}) # Magic from here: https://stackoverflow.com/questions/6774086/why-is-my-xlabel-cut-off-in-my-matplotlib-plot
@@ -388,6 +422,15 @@ class Ui_Dialog_First_Window(object):
     def FT(self):
         # Does all the math and stuff here instead of sending to a worker thread. Hopefully that's not bad!
         # OK, looks like we should send the hard things to a worker thread. Sigh.
+
+        global gate_start
+        global gate_stop
+
+        final_check = self.are_we_there_yet()
+
+        if final_check == False:
+            self.FT_data_button.setEnabled(False)
+            return
 
         if self.full_FID_cb.isChecked():
             self.gate_start_input.setText(str(xdata[0]))
@@ -402,6 +445,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Sample rate should be a float!" # window later
             self.raise_error()
+            self.sample_rate_input.setFocus()
             return 0
 
         try:
@@ -409,6 +453,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Gate start should be a float!" # window later
             self.raise_error()
+            self.gate_start_input.setFocus()
             return 0
 
         try:
@@ -416,6 +461,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Gate stop should be a float!" # window later
             self.raise_error()
+            self.gate_stop_input.setFocus()
             return 0
 
         try:
@@ -428,6 +474,7 @@ class Ui_Dialog_First_Window(object):
         if gate_start >= gate_stop:
             self.error_message = "Gate start should be smaller than gate stop! Please correct this and try again."
             self.raise_error()
+            self.gate_start_input.setFocus()
             return 0
 
         if gate_start < 0.0:
@@ -631,6 +678,9 @@ class Actual_Plot(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self)
         self.__dict__.update(kwargs)
 
+        global plot_switch
+        plot_switch = self.which_one
+
         if self.which_one == "data":
             self.title = 'Plot of FID with Gate Boundaries'
         else:
@@ -649,9 +699,6 @@ class Actual_Plot(QtWidgets.QMainWindow):
         vlay = QtWidgets.QVBoxLayout(widget)
         hlay = QtWidgets.QHBoxLayout()
         vlay.addLayout(hlay)
-
-        global plot_switch
-        plot_switch = self.which_one
 
         m = WidgetPlot(self)
         vlay.addWidget(m)
