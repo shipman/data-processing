@@ -289,6 +289,7 @@ class Ui_Dialog_First_Window(object):
                 except:
                     self.error_message = "DR center frequency should be a float!"
                     self.raise_error()
+                    self.sinc_cent_freq_input.setFocus()
                     return 0
 
             if (band == "High (18.0-26.5 GHz)"):
@@ -346,6 +347,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Chirp duration should be a float!"
             self.raise_error()
+            self.chirp_duration_input.setFocus()
             return 0
 
         try:
@@ -353,6 +355,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Chirp starting frequency should be a float!"
             self.raise_error()
+            self.chirp_start_input.setFocus()
             return 0
 
         try:
@@ -360,6 +363,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Chirp stop frequency should be a float!"
             self.raise_error()
+            self.chirp_stop_input.setFocus()
             return 0
 
         try:
@@ -367,6 +371,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Chirp starting time should be a float!"
             self.raise_error()
+            self.chirp_delay_input.setFocus()
             return 0
 
         try:
@@ -374,6 +379,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Trigger start should be a float!"
             self.raise_error()
+            self.marker_on_input.setFocus()
             return 0
 
         try:
@@ -381,6 +387,7 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Trigger stop should be a float!"
             self.raise_error()
+            self.marker_off_input.setFocus()
             return 0
 
         try:
@@ -388,11 +395,20 @@ class Ui_Dialog_First_Window(object):
         except:
             self.error_message = "Total waveform time should be a float!"
             self.raise_error()
+            self.waveform_time_input.setFocus()
             return 0
 
         if (Ch1_on > total_waveform_time) or (Ch1_off > total_waveform_time):
             self.error_message = "Trigger start and stop times should be less than the total waveform time!"
             self.raise_error()
+            self.marker_on_input.setFocus()
+            return 0
+
+        if self.file_export_input.text() == '':
+            self.error_message = "There's not a valid file to save the pulse to!"
+            self.raise_error()
+            self.browse_export_button.setFocus()
+            self.generate_pulse_button.setEnabled(False)
             return 0
 
         chirp_name = self.file_export_input.text()
@@ -405,6 +421,7 @@ class Ui_Dialog_First_Window(object):
             except:
                 self.error_message = "DR frequency should be a float!"
                 self.raise_error()
+                self.sinc_cent_freq_input.setFocus()
                 return 0
 
             try:
@@ -412,6 +429,7 @@ class Ui_Dialog_First_Window(object):
             except:
                 self.error_message = "DR width should be a float!"
                 self.raise_error()
+                self.sinc_bandwidth_input.setFocus()
                 return 0
 
             try:
@@ -419,6 +437,7 @@ class Ui_Dialog_First_Window(object):
             except:
                 self.error_message = "DR start time should be a float!"
                 self.raise_error()
+                self.sinc_cent_time_input.setFocus()
                 return 0
 
             try:
@@ -426,6 +445,7 @@ class Ui_Dialog_First_Window(object):
             except:
                 self.error_message = "DR duration should be a float!"
                 self.raise_error()
+                self.sinc_duration_input.setFocus()
                 return 0
 
             try:
@@ -433,11 +453,13 @@ class Ui_Dialog_First_Window(object):
             except:
                 self.error_message = "DR amplitude should be a float!"
                 self.raise_error()
+                self.sinc_amplitude_input.setFocus()
                 return 0
 
             if (Sinc_Amp < 0) or (Sinc_Amp > 1):
                 self.error_message = "DR amplitude should be between 0 and 1!"
                 self.raise_error()
+                self.sinc_amplitude_input.setFocus()
                 return 0
 
             gap = sinc_start + (Sinc_Window/2)
@@ -446,6 +468,7 @@ class Ui_Dialog_First_Window(object):
                 if (Sinc_Cent_Freq < 8700.0) or (Sinc_Cent_Freq > 13500.0):
                     self.error_message = "DR frequency is not in lower band range (8700 - 13500 MHz)!"
                     self.raise_error()
+                    self.sinc_cent_freq_input.setFocus()
                     return 0
                 PDRO = 13600
                 Sinc_Freq = PDRO - Sinc_Cent_Freq
@@ -453,6 +476,7 @@ class Ui_Dialog_First_Window(object):
                 if (Sinc_Cent_Freq < 13500.0) or (Sinc_Cent_Freq > 18300.0):
                     self.error_message = "DR frequency is not in mid band range (13500 - 18300 MHz)!"
                     self.raise_error()
+                    self.sinc_cent_freq_input.setFocus()
                     return 0
                 PDRO = 18400
                 Sinc_Freq = PDRO - Sinc_Cent_Freq
@@ -460,6 +484,7 @@ class Ui_Dialog_First_Window(object):
                 if (Sinc_Cent_Freq < 18000.0) or (Sinc_Cent_Freq > 26500.0):
                     self.error_message = "DR frequency is not in high band range (18000 - 26500 MHz)!"
                     self.raise_error()
+                    self.sinc_cent_freq_input.setFocus()
                     return 0
                 PDRO = 13600
                 Sinc_Freq = PDRO - (Sinc_Cent_Freq/2)
