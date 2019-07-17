@@ -9,6 +9,7 @@ For now I think I'll hold it to just doing one DR pulse, which will be a simplif
 """
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from functools import partial
 import numpy
 import matplotlib
 import sys
@@ -59,6 +60,14 @@ class Ui_Dialog_First_Window(object):
         self.use_DR_cb.setChecked(True) # Have it checked by default
         self.use_DR_cb.stateChanged.connect(self.use_DR)
         self.gridLayout.addWidget(self.use_DR_cb, 0, 3, 1, 1)
+        self.font_plus_button = QtWidgets.QPushButton(Dialog)
+        self.font_plus_button.setObjectName = "font_plus_button"
+        self.font_plus_button.clicked.connect(partial(self.font_plus,Dialog))
+        self.gridLayout.addWidget(self.font_plus_button, 0, 4, 1, 1)
+        self.font_minus_button = QtWidgets.QPushButton(Dialog)
+        self.font_minus_button.setObjectName = "font_minus_button"
+        self.font_minus_button.clicked.connect(partial(self.font_minus,Dialog))
+        self.gridLayout.addWidget(self.font_minus_button, 0, 5, 1, 1)
 
         self.gridLayout.addWidget(QHLine(), 1, 0, 1, 6)
 
@@ -198,6 +207,8 @@ class Ui_Dialog_First_Window(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Chirped + DR Pulse Generation"))
         #self.sample_rate_label.setText(_translate("Dialog", "Sample Rate (GS/s)"))
+        self.font_plus_button.setText(_translate("Dialog", "Increase Font"))
+        self.font_minus_button.setText(_translate("Dialog", "Decrease Font"))
         self.chirp_start_label.setText(_translate("Dialog", "Chirp Start (MHz)"))
         self.chirp_stop_label.setText(_translate("Dialog", "Chirp Stop (MHz)"))
         self.chirp_delay_label.setText(_translate("Dialog", "Chirp Start Time (us)"))
@@ -209,11 +220,25 @@ class Ui_Dialog_First_Window(object):
         self.sinc_amplitude_label.setText(_translate("Dialog", "DR Amplitude (0-1)"))
         self.marker_on_label.setText(_translate("Dialog", "Trigger start (us)"))
         self.marker_off_label.setText(_translate("Dialog", "Trigger stop (us)"))
-        self.waveform_time_label.setText(_translate("Dialog", "Total Waveform Time (us)"))
+        self.waveform_time_label.setText(_translate("Dialog", "Total Time (us)"))
         self.file_export_label.setText(_translate("Dialog", "Output File Name"))
         self.browse_export_button.setText(_translate("Dialog", "Browse"))
         self.generate_pulse_button.setText(_translate("Dialog", "Generate Pulse!"))
         self.exit_button.setText(_translate("Dialog", "Exit"))
+
+    def font_plus(self,Dialog):
+        font = Dialog.font()
+        curr_size = font.pointSize()
+        new_size = curr_size + 3
+        font.setPointSize(new_size)
+        Dialog.setFont(font)
+
+    def font_minus(self,Dialog):
+        font = Dialog.font()
+        curr_size = font.pointSize()
+        new_size = curr_size - 3
+        font.setPointSize(new_size)
+        Dialog.setFont(font)
 
     def use_defaults(self):
         defaults_decision = self.use_defaults_cb.isChecked()

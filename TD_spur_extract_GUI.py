@@ -13,6 +13,7 @@ It also implements a progress bar that updates itself with threading. :)
 """
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from functools import partial
 import numpy as np
 import math
 import matplotlib
@@ -56,6 +57,10 @@ class Ui_Dialog_First_Window(object):
         self.max_spur_input.setToolTip("This is the maximum spur frequency to remove, in GHz. It should be less than the Nyquist frequency.")
         self.max_spur_input.setText("10.0") # Default value
         self.gridLayout.addWidget(self.max_spur_input, 0, 5, 1, 1)
+        self.font_plus_button = QtWidgets.QPushButton(Dialog)
+        self.font_plus_button.setObjectName = "font_plus_button"
+        self.font_plus_button.clicked.connect(partial(self.font_plus,Dialog))
+        self.gridLayout.addWidget(self.font_plus_button, 0, 6, 1, 1)
 
         self.gate_start_label = QtWidgets.QLabel(Dialog)
         self.gate_start_label.setObjectName("gate_start_label")
@@ -82,6 +87,10 @@ class Ui_Dialog_First_Window(object):
         self.full_FID_cb.setText("Use Full FID")
         self.gridLayout.addWidget(self.full_FID_cb, 1, 5, 1, 1)
         self.full_FID_cb.stateChanged.connect(self.are_we_there_yet)
+        self.font_minus_button = QtWidgets.QPushButton(Dialog)
+        self.font_minus_button.setObjectName = "font_minus_button"
+        self.font_minus_button.clicked.connect(partial(self.font_minus,Dialog))
+        self.gridLayout.addWidget(self.font_minus_button, 1, 6, 1, 1)
 
         self.gridLayout.addWidget(QHLine(), 2, 0, 1, 7)
 
@@ -143,20 +152,34 @@ class Ui_Dialog_First_Window(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Spur Extraction"))
         self.sample_rate_label.setText(_translate("Dialog", "Sample Rate (GS/s)"))
+        self.spur_spacing_label.setText(_translate("Dialog", "Spur Spacing (MHz)"))
+        self.max_spur_label.setText(_translate("Dialog", "Max Spur (GHz)"))
+        self.font_plus_button.setText(_translate("Dialog", "Increase Font"))
+        self.gate_start_label.setText(_translate("Dialog", "Gate Start (us)"))
+        self.gate_stop_label.setText(_translate("Dialog", "Gate Stop (us)"))
+        self.font_minus_button.setText(_translate("Dialog", "Decrease Font"))
         self.file_import_label.setText(_translate("Dialog", "Data File Name"))
         self.browse_import_button.setText(_translate("Dialog", "Browse"))
         self.load_button.setText(_translate("Dialog", "Load"))
         self.plot_button.setText(_translate("Dialog", "Plot"))
-        self.gate_start_label.setText(_translate("Dialog", "Gate Start (us)"))
-        self.gate_stop_label.setText(_translate("Dialog", "Gate Stop (us)"))
-        #self.full_FID_label.setText(_translate("Dialog", "Use Full FID"))
         self.file_export_label.setText(_translate("Dialog", "Output File Name"))
         self.browse_export_button.setText(_translate("Dialog", "Browse"))
-        self.spur_spacing_label.setText(_translate("Dialog", "Spur Spacing (MHz)"))
-        self.max_spur_label.setText(_translate("Dialog", "Max Spur (GHz)"))
         self.extract_spurs_button.setText(_translate("Dialog", "Extract Spurs!"))
         self.exit_button.setText(_translate("Dialog", "Exit"))
 
+    def font_plus(self,Dialog):
+        font = Dialog.font()
+        curr_size = font.pointSize()
+        new_size = curr_size + 3
+        font.setPointSize(new_size)
+        Dialog.setFont(font)
+
+    def font_minus(self,Dialog):
+        font = Dialog.font()
+        curr_size = font.pointSize()
+        new_size = curr_size - 3
+        font.setPointSize(new_size)
+        Dialog.setFont(font)
 
     def browse(self):
     	fileName, _ = QtWidgets.QFileDialog.getOpenFileName()
