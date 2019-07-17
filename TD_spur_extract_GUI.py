@@ -184,6 +184,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Sample rate should be a float!"
     		self.raise_error()
+    		self.sample_rate_input.setFocus()
     		return 0
 
     	global FID
@@ -198,6 +199,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "That file couldn't be opened. Try again with a different one." # We'll make this be a pop-up error window later
     		self.raise_error()
+    		self.browse_import_button.setFocus()
     		return 0
 
     	try:
@@ -214,6 +216,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Data from that file couldn't be properly processed; try again with a different file." # We'll make this be a pop-up error window later
     		self.raise_error()
+    		self.browse_import_button.setFocus()
     		return 0
 
     	else:
@@ -234,6 +237,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Gate start should be a float!" # make it a window later
     		self.raise_error()
+    		self.gate_start_input.setFocus()
     		return 0
 
     	try:
@@ -241,6 +245,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Gate stop should be a float!" # make it a window later
     		self.raise_error()
+    		self.gate_stop_input.setFocus()
     		return 0
 
     	rcParams.update({'figure.autolayout': True}) # Magic from here: https://stackoverflow.com/questions/6774086/why-is-my-xlabel-cut-off-in-my-matplotlib-plot
@@ -281,23 +286,23 @@ class Ui_Dialog_First_Window(object):
             self.load_button.setEnabled(False)
             self.plot_button.setEnabled(False)
             self.extract_spurs_button.setEnabled(False)
-            return
+            return False
         else: # we have a data file
             if data_loaded == False:
                 self.load_button.setEnabled(True)
                 self.load_button.setFocus()
                 self.plot_button.setEnabled(False)
                 self.extract_spurs_button.setEnabled(False)
-                return
+                return False
             else: # the data file has been loaded
                 if have_export_file == False:
                     self.browse_export_button.setFocus()
                     self.extract_spurs_button.setEnabled(False)
-                    return
+                    return False
                 else: # we have an export filename
                     self.extract_spurs_button.setEnabled(True)
                     self.extract_spurs_button.setFocus()
-                    return
+                    return True
 
 
     def extract(self):
@@ -314,6 +319,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Sample rate should be a float!" # window later
     		self.raise_error()
+    		self.sample_rate_input.setFocus()
     		return 0
 
     	try:
@@ -321,6 +327,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Gate start should be a float!" # window later
     		self.raise_error()
+    		self.gate_start_input.setFocus()
     		return 0
 
     	try:
@@ -328,6 +335,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Gate stop should be a float!" # window later
     		self.raise_error()
+    		self.gate_stop_input.setFocus()
     		return 0
 
     	try:
@@ -335,6 +343,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Spur spacing should be a float!" # window later
     		self.raise_error()
+    		self.spur_spacing_input.setFocus()
     		return 0
 
     	try:
@@ -342,6 +351,7 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Max spur frequency should be a float!" # window later
     		self.raise_error()
+    		self.max_spur_input.setFocus()
     		return 0
 
     	try:
@@ -349,10 +359,20 @@ class Ui_Dialog_First_Window(object):
     	except:
     		self.error_message = "Output file name should be a valid string!"
     		self.raise_error()
+    		self.extract_spurs_button.setEnabled(False)
+    		self.browse_export_button.setFocus()
     		return 0
 
     	if gate_start >= gate_stop:
     		self.error_message = "Gate start should be smaller than gate stop! Please correct this and try again."
+    		self.raise_error()
+    		self.gate_start_input.setFocus()
+    		return 0
+
+    	final_check = self.are_we_there_yet() # Last check before doing time-consuming things.
+
+    	if final_check == False:
+    		self.error_message = "Something was changed (file names were probably deleted) before trying to extract spurs. Double-check everything and try again."
     		self.raise_error()
     		return 0
 
