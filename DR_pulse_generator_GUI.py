@@ -200,6 +200,23 @@ class Ui_Dialog_First_Window(object):
         self.exit_button.clicked.connect(app.quit)
         self.gridLayout.addWidget(self.exit_button, 11, 4, 1, 2)
 
+        self.font_plus_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl++"), self.font_plus_button)
+        self.font_plus_button.shortcut.activated.connect(partial(self.font_plus,Dialog))
+        self.font_minus_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+-"), self.font_minus_button)
+        self.font_minus_button.shortcut.activated.connect(partial(self.font_minus,Dialog))
+        self.browse_export_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+O"), self.browse_export_button)
+        self.browse_export_button.shortcut.activated.connect(self.browse_export)
+        self.generate_pulse_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+R"), self.generate_pulse_button)
+        self.generate_pulse_button.shortcut.activated.connect(self.generate_pulse)
+        self.exit_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self.exit_button)
+        self.exit_button.shortcut.activated.connect(app.quit)
+
+        self.font_plus_button.setWhatsThis("Shortcut: Ctrl++")
+        self.font_minus_button.setWhatsThis("Shortcut: Ctrl+-")
+        self.browse_export_button.setWhatsThis("Shortcut: Ctrl+O")
+        self.generate_pulse_button.setWhatsThis("Shortcut: Ctrl+R")
+        self.exit_button.setWhatsThis("Shortcut: Ctrl+Q")
+
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -222,7 +239,7 @@ class Ui_Dialog_First_Window(object):
         self.marker_off_label.setText(_translate("Dialog", "Trigger stop (us)"))
         self.waveform_time_label.setText(_translate("Dialog", "Total Time (us)"))
         self.file_export_label.setText(_translate("Dialog", "Output File Name"))
-        self.browse_export_button.setText(_translate("Dialog", "Browse"))
+        self.browse_export_button.setText(_translate("Dialog", "Browse Output"))
         self.generate_pulse_button.setText(_translate("Dialog", "Generate Pulse!"))
         self.exit_button.setText(_translate("Dialog", "Exit"))
 
@@ -548,6 +565,10 @@ class Ui_Dialog_First_Window(object):
     def plotter(self):
         rcParams.update({'figure.autolayout': True}) # Magic from here: https://stackoverflow.com/questions/6774086/why-is-my-xlabel-cut-off-in-my-matplotlib-plot
         self.plot = Actual_Plot()
+        self.plot.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+W"), self.plot)
+        self.plot.shortcut.activated.connect(self.plot.close)
+        self.plot.alt_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self.plot)
+        self.plot.alt_shortcut.activated.connect(self.plot.close)
         self.plot.show()
 
 class Actual_Plot(QtWidgets.QMainWindow):

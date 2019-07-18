@@ -163,6 +163,7 @@ class Ui_Dialog_First_Window(object):
         self.exit_button = QtWidgets.QPushButton(Dialog)
         self.exit_button.setObjectName("exit_button")
         self.exit_button.clicked.connect(app.quit) # Probably should interrupt if haven't saved yet
+
         self.gridLayout.addWidget(self.exit_button, 7, 4, 1, 2)
         self.indicator = QtWidgets.QPushButton(Dialog) # Hacking a push button to be a status indicator
         self.indicator.setObjectName("indicator")
@@ -170,12 +171,47 @@ class Ui_Dialog_First_Window(object):
         self.indicator.setEnabled(False)
         self.indicator.setStyleSheet("background-color:rgb(255,255,255); color:rgb(0,0,0); border: none")
         self.indicator.setText("Not Ready")
-        self.indicator.clicked.connect(app.quit)
+        #self.indicator.clicked.connect(app.quit)
         
         self.status_window = QtWidgets.QTextEdit(Dialog)
         self.status_window.setObjectName("status_window")
         self.gridLayout.addWidget(self.status_window, 8, 0, 5, 7) # make it big!!!!
         self.status_window.setReadOnly(True)
+
+        self.font_plus_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl++"), self.font_plus_button)
+        self.font_plus_button.shortcut.activated.connect(partial(self.font_plus,Dialog))
+        self.font_minus_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+-"), self.font_minus_button)
+        self.font_minus_button.shortcut.activated.connect(partial(self.font_minus,Dialog))
+        self.browse_import_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+D"), self.browse_import_button)
+        self.browse_import_button.shortcut.activated.connect(self.browse)
+        self.load_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+L"), self.load_button)
+        self.load_button.shortcut.activated.connect(self.load_input)
+        self.plot_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+1"), self.plot_button)
+        self.plot_button.shortcut.activated.connect(self.plot_input)
+        self.browse_import_blank_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+B"), self.browse_import_blank_button)
+        self.browse_import_blank_button.shortcut.activated.connect(self.browse_blank)
+        self.load_blank_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+M"), self.load_blank_button)
+        self.load_blank_button.shortcut.activated.connect(self.load_blank_input)
+        self.plot_blank_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+2"), self.plot_blank_button)
+        self.plot_blank_button.shortcut.activated.connect(self.plot_blank_input)
+        self.browse_export_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+O"), self.browse_export_button)
+        self.browse_export_button.shortcut.activated.connect(self.browse_export)
+        self.FT_data_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+R"), self.FT_data_button)
+        self.FT_data_button.shortcut.activated.connect(self.FT)
+        self.exit_button.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self.exit_button)
+        self.exit_button.shortcut.activated.connect(app.quit)
+
+        self.font_plus_button.setWhatsThis("Shortcut: Ctrl++")
+        self.font_minus_button.setWhatsThis("Shortcut: Ctrl+-")
+        self.browse_import_button.setWhatsThis("Shortcut: Ctrl+D")
+        self.load_button.setWhatsThis("Shortcut: Ctrl+L")
+        self.plot_button.setWhatsThis("Shortcut: Ctrl+1")
+        self.browse_import_blank_button.setWhatsThis("Shortcut: Ctrl+B")
+        self.load_blank_button.setWhatsThis("Shortcut: Ctrl+M")
+        self.plot_blank_button.setWhatsThis("Shortcut: Ctrl+2")
+        self.browse_export_button.setWhatsThis("Shortcut: Ctrl+O")
+        self.FT_data_button.setWhatsThis("Shortcut: Ctrl+R")
+        self.exit_button.setWhatsThis("Shortcut: Ctrl+Q")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -188,17 +224,17 @@ class Ui_Dialog_First_Window(object):
         self.font_plus_button.setText(_translate("Dialog", "Increase Font"))
         self.font_minus_button.setText(_translate("Dialog", "Decrease Font"))
         self.file_import_label.setText(_translate("Dialog", "Data File Name"))
-        self.browse_import_button.setText(_translate("Dialog", "Browse"))
+        self.browse_import_button.setText(_translate("Dialog", "Browse Data"))
         self.load_button.setText(_translate("Dialog", "Load Data"))
         self.plot_button.setText(_translate("Dialog", "Plot Data"))
         self.blank_import_label.setText(_translate("Dialog", "Blank File Name"))
-        self.browse_import_blank_button.setText(_translate("Dialog", "Browse"))
+        self.browse_import_blank_button.setText(_translate("Dialog", "Browse Blank"))
         self.load_blank_button.setText(_translate("Dialog", "Load Blank"))
         self.plot_blank_button.setText(_translate("Dialog", "Plot Blank"))
         self.gate_start_label.setText(_translate("Dialog", "Gate Start (us)"))
         self.gate_stop_label.setText(_translate("Dialog", "Gate Stop (us)"))
         self.file_export_label.setText(_translate("Dialog", "Output File Name"))
-        self.browse_export_button.setText(_translate("Dialog", "Browse"))
+        self.browse_export_button.setText(_translate("Dialog", "Browse Output"))
         self.FT_data_button.setText(_translate("Dialog", "Fourier Transform!"))
         self.exit_button.setText(_translate("Dialog", "Exit"))
 
@@ -443,6 +479,10 @@ class Ui_Dialog_First_Window(object):
         rcParams.update({'figure.autolayout': True}) # Magic from here: https://stackoverflow.com/questions/6774086/why-is-my-xlabel-cut-off-in-my-matplotlib-plot
 
         self.plot = Actual_Plot(which_one=switch)
+        self.plot.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+W"), self.plot)
+        self.plot.shortcut.activated.connect(self.plot.close)
+        self.plot.alt_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self.plot)
+        self.plot.alt_shortcut.activated.connect(self.plot.close)
         self.plot.show()
 
 
